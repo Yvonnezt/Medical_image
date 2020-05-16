@@ -19,7 +19,7 @@ from tensorflow import keras
 os.chdir(os.path.dirname(__file__))
 
 class DataGen(keras.utils.Sequence):
-    def __init__(self, ids,path, batch_size=8, image_size=128,form="tif",shuffle=True):
+    def __init__(self, ids,path, batch_size=8, image_size=128,form="tif",shuffle=True,color="rgb"):
         self.ids = ids
         self.path = path
         self.batch_size = batch_size
@@ -27,6 +27,7 @@ class DataGen(keras.utils.Sequence):
         self.shuffle=shuffle
         self.on_epoch_end()
         self.form=form
+        self.color=color
         
     def __load__(self, id):
         ## Path
@@ -35,12 +36,21 @@ class DataGen(keras.utils.Sequence):
         image_path2 = self.path+"/image_aug/"+id+"."+self.form
         mask_path2 = self.path+"/mask_aug/"+id+"_mask."+self.form
         ## Reading Image and Mask
-        image = cv2.imread(image_path1, 1)
-        if type(image) is not np.ndarray:
-            image = cv2.imread(image_path2, 1)
+        if self.color=="rgb":
+            image = cv2.imread(image_path1, 1)
+            if type(image) is not np.ndarray:
+                image = cv2.imread(image_path2, 1)
             if type(image) is not np.ndarray:
                 raise ValueError([image_path2,image_path1])
-        image = cv2.resize(image,(self.image_size, self.image_size))
+            image = cv2.resize(image,(self.image_size, self.image_size))
+        if self.color=="gray":
+            image = cv2.imread(image_path1, 0)
+            if type(image) is not np.ndarray:
+                image = cv2.imread(image_path2, 0)
+            if type(image) is not np.ndarray:
+                raise ValueError([image_path2,image_path1])
+            image = cv2.resize(image,(self.image_size, self.image_size))
+            image=np.expand_dims(image,axis=-1)
         mask=cv2.imread(mask_path1,0)
         if type(mask) is not np.ndarray:
             mask=cv2.imread(mask_path2,0)

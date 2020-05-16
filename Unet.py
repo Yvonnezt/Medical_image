@@ -35,9 +35,13 @@ def bottleneck(x, filters, kernel_size=(3, 3), padding="same", strides=1):
     c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(c)
     return c
 'Def Unet'
-def UNet():
+def UNet(form="rgb"):
+    if form=="rgb":
+        dep=3
+    else:
+        dep=1
     f = [16, 32, 64, 128, 256,512]
-    inputs = keras.layers.Input((image_size, image_size, 3))
+    inputs = keras.layers.Input((image_size, image_size, dep))
     
     p0 = inputs
     c1, p1 = down_block(p0, f[0]) #256 -> 128
